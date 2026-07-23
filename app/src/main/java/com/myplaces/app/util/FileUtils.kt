@@ -4,13 +4,16 @@ import android.content.Context
 import android.net.Uri
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 
 object FileUtils {
 
     /** Cree le dossier de photos internes si necessaire et retourne le File. */
     private fun getPhotosDir(context: Context): File {
         val dir = File(context.filesDir, "photos")
-        if (!dir.exists()) dir.mkdirs()
+        if (!dir.exists() && !dir.mkdirs()) {
+            // Log or handle the failure to create directory if needed
+        }
         return dir
     }
 

@@ -135,8 +135,9 @@ fun CameraScreen(
         ) {
             FilledIconButton(
                 onClick = {
-                    takePhoto(context, imageCapture, cameraExecutor, onPhotoTaken)
+                    takePhoto(context, imageCapture, onPhotoTaken)
                 },
+                enabled = imageCapture != null,
                 modifier = Modifier.size(72.dp),
                 shape = CircleShape,
                 colors = IconButtonDefaults.filledIconButtonColors(
@@ -157,7 +158,6 @@ fun CameraScreen(
 private fun takePhoto(
     context: Context,
     imageCapture: ImageCapture?,
-    executor: ExecutorService,
     onPhotoTaken: (String) -> Unit
 ) {
     val photoFile = FileUtils.createPhotoFile(context)
@@ -165,7 +165,7 @@ private fun takePhoto(
 
     imageCapture?.takePicture(
         outputOptions,
-        executor,
+        ContextCompat.getMainExecutor(context),
         object : ImageCapture.OnImageSavedCallback {
             override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                 onPhotoTaken(photoFile.absolutePath)
