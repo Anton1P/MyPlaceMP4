@@ -2,6 +2,7 @@
 
 import android.Manifest
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Settings
@@ -52,6 +53,8 @@ fun MapScreen(
         position = CameraPosition.fromLatLngZoom(LatLng(48.8566, 2.3522), 12f)
     }
 
+    var userLocation by remember { mutableStateOf<LatLng?>(null) }
+
     // --- Récupérer la position et centrer la carte ---
     LaunchedEffect(isLocationGranted) {
         if (isLocationGranted) {
@@ -59,9 +62,11 @@ fun MapScreen(
                 val fusedClient = LocationServices.getFusedLocationProviderClient(context)
                 val location = fusedClient.lastLocation.await()
                 if (location != null) {
+                    val latLng = LatLng(location.latitude, location.longitude)
+                    userLocation = latLng
                     cameraPositionState.animate(
                         update = com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom(
-                            LatLng(location.latitude, location.longitude),
+                            latLng,
                             15f
                         )
                     )
@@ -86,16 +91,6 @@ fun MapScreen(
                     }
                 }
             )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    val center = cameraPositionState.position.target
-                    onNavigateToAddPlace(center.latitude, center.longitude)
-                }
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Ajouter un lieu")
-            }
         }
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
@@ -118,6 +113,25 @@ fun MapScreen(
                         }
                     )
                 }
+            }
+
+            // Nouveau bouton d'ajout centré
+            Button(
+                onClick = {
+                    userLocation?.let { loc ->
+                        onNavigateToAddPlace(loc.latitude, loc.longitude)
+                    }
+                },
+                enabled = isLocationGranted && userLocation != null,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 32.dp)
+                    .fillMaxWidth(0.55f),
+                shape = RoundedCornerShape(50)
+            ) {
+                Icon(Icons.Default.Add, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text(if (isLocationGranted) "Ajouter ici" else "📍 Localisation requise")
             }
 
             // Indicateur si la carte est vide
