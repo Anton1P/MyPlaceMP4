@@ -36,10 +36,9 @@
                 android:resource="@xml/file_provider_paths" />
         </provider>
 
-        <!-- TODO 🧑 HUMAIN : Remplacer YOUR_API_KEY_HERE par votre clé Google Maps API -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="YOUR_API_KEY_HERE" />
+            android:value="${MAPS_API_KEY}" />
 
         <activity
             android:name=".MainActivity"
@@ -54,4 +53,4 @@
         </activity>
     </application>
 
-</manifest>
+</manifest>
