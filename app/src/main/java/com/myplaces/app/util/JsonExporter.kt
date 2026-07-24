@@ -28,7 +28,8 @@ data class PlaceExport(
     val emoji: String,
     val created_at: Long,
     val author_id: String,
-    val author_name: String
+    val author_name: String,
+    val image_base64: String? // Nouvel attribut ajouté pour le transport de la photo
 )
 
 object JsonExporter {
@@ -58,7 +59,8 @@ object JsonExporter {
                     emoji = p.emoji,
                     created_at = p.createdAt,
                     author_id = p.authorId,
-                    author_name = p.authorName
+                    author_name = p.authorName,
+                    image_base64 = FileUtils.fileToBase64(p.photoPath) // Encodage ici
                 )
             }
         )

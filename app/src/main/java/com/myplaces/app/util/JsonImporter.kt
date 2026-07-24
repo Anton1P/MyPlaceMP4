@@ -19,7 +19,12 @@ object JsonImporter {
             val json = context.contentResolver.openInputStream(uri)?.bufferedReader()?.readText()
                 ?: return 0
             val exportData = gson.fromJson(json, ExportData::class.java)
+
             val places = exportData.places.map { p ->
+
+                // Décodage du Base64 et sauvegarde physique
+                val savedPhotoPath = FileUtils.base64ToFile(context, p.image_base64)
+
                 PlaceEntity(
                     title = p.title,
                     description = p.description,
@@ -27,7 +32,7 @@ object JsonImporter {
                     longitude = p.longitude,
                     address = p.address,
                     emoji = p.emoji,
-                    photoPath = null,
+                    photoPath = savedPhotoPath, // On attribue le chemin String ici
                     authorId = p.author_id,
                     authorName = p.author_name,
                     createdAt = p.created_at,
