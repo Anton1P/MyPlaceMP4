@@ -1,6 +1,10 @@
 ﻿package com.myplaces.app.ui.map
 
 import android.Manifest
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -17,6 +21,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
@@ -105,8 +111,9 @@ fun MapScreen(
                 places.forEach { place ->
                     Marker(
                         state = MarkerState(position = LatLng(place.latitude, place.longitude)),
-                        title = "${place.emoji} ${place.title}",
+                        title = place.title, // J'ai retiré l'émoji du titre ici
                         snippet = place.address ?: "",
+                        icon = bitmapDescriptorFromEmoji(context, place.emoji), // Ajout de l'icône personnalisée
                         onClick = {
                             selectedPlace = place
                             false
@@ -163,4 +170,23 @@ fun MapScreen(
             onDelete = { viewModel.deletePlace(it) }
         )
     }
+}
+
+fun bitmapDescriptorFromEmoji(context: Context, emoji: String): BitmapDescriptor {
+    val paint = Paint().apply {
+        textSize = 100f // Tu peux ajuster la taille de l'émoji ici
+        textAlign = Paint.Align.CENTER
+        isAntiAlias = true
+    }
+
+    val width = paint.measureText(emoji).toInt()
+    val baseline = -paint.ascent()
+    val height = (baseline + paint.descent()).toInt()
+
+    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+
+    canvas.drawText(emoji, width / 2f, baseline, paint)
+
+    return BitmapDescriptorFactory.fromBitmap(bitmap)
 }
