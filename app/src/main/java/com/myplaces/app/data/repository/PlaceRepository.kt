@@ -3,6 +3,7 @@
 import com.myplaces.app.data.local.dao.PlaceDao
 import com.myplaces.app.data.local.entity.PlaceEntity
 import com.myplaces.app.data.remote.api.GeocodingApiService
+import com.myplaces.app.util.FileUtils
 import kotlinx.coroutines.flow.Flow
 
 class PlaceRepository(
@@ -53,8 +54,12 @@ class PlaceRepository(
         for (place in places) {
             val exists = placeDao.placeExists(place.authorId, place.createdAt)
             if (exists == 0) {
-                placeDao.insertPlace(place.copy(isImported = true, photoPath = null))
+                // On conserve photoPath : JsonImporter a deja decode la photo dans le stockage interne
+                placeDao.insertPlace(place.copy(isImported = true))
                 importedCount++
+            } else {
+                // Doublon ignore : on supprime la photo deja decodee pour ne pas laisser de fichier orphelin
+                FileUtils.deletePhoto(place.photoPath)
             }
         }
         return importedCount
